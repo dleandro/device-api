@@ -15,6 +15,7 @@ Plan
 11 - Make sure we have controlled errors and use the status code lib
 13 - Openapi documentation
 14 - Is it possible to export a postman collection
+15 - Add pagination and filtering on the get
 
 • Create a new device.
 • Fully and/or par:ally update an exis:ng device.
@@ -30,6 +31,7 @@ Design decisions log:
 1 - No backend framework is going to be used as it is excessive for such a small API
 2 - I wouldn't use a relational database because we only have one entity so there will be no joins which is in my opinion one of the biggest pluses of having a relational DB.
 3 - Since the API is very simple this application will only have e2e tests (they are the closest thing to the actual usaage of this API in production and will cover most of the code)
+4 - Using a hybrid approach between OOP and functional programming to better apply DDD
 
 
 

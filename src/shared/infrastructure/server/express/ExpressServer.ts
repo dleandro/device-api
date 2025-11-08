@@ -13,15 +13,13 @@ export class ExpressServer implements Server {
     this.log.info('Starting Express server...');
 
     try {
-      this.app.use(express.json({ limit: '5mb' }));
-      const c = getContainer().get('Controllers');
-
       useExpressServer(this.app, {
-        defaultErrorHandler: false,
         controllers: getContainer().get('Controllers'),
+        defaultErrorHandler: true,
+        validation: true,
       });
 
-      return this.app as unknown as http.Server;
+      return http.createServer(this.app);
     } catch (error) {
       this.log.error(error);
       throw new Error();
