@@ -16,6 +16,10 @@ Plan
 13 - Openapi documentation
 14 - Is it possible to export a postman collection
 15 - Add pagination and filtering on the get
+16 - We could have TestMothers in the future with faker or something in order to have more variety when creating the test objects
+17 - Remove the constant id's for the container services which could be in a single file
+18 - Could have dependency injection for each environment (prod, dev, stg)
+19 - Could improve the env variable configuration system by having a centralized getConfig with a defined type
 
 • Create a new device.
 • Fully and/or par:ally update an exis:ng device.
@@ -32,6 +36,7 @@ Design decisions log:
 2 - I wouldn't use a relational database because we only have one entity so there will be no joins which is in my opinion one of the biggest pluses of having a relational DB.
 3 - Since the API is very simple this application will only have e2e tests (they are the closest thing to the actual usaage of this API in production and will cover most of the code)
 4 - Using a hybrid approach between OOP and functional programming to better apply DDD
+5 - There is no need for an aggregate root since we only have one entity but we should have entity types for each primitive field and their validations should be inside the creation of those fields. The manipulation of devices will be managed by the services
 
 
 

@@ -1,35 +1,25 @@
 import { Body, Get, HttpCode, JsonController, Post } from 'routing-controllers';
-
-type Result<T> = {
-  data: Array<T>;
-  total: number;
-};
-
-export type Device = {
-  id?: number;
-  name: string;
-  brand: string;
-  state: 'available' | 'in-use' | 'inactive';
-  createdAt?: string;
-};
+import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
+import { GetDevicesService } from '../application/device/GetDevicesService';
+import { getContainer } from '../shared/infrastructure/dependency_injection/setup-dependency-injection';
+import { CreateDevicesService } from '../application/device/CreateDevicesService';
 
 @JsonController('/device')
 export class DeviceController {
-  private devices: Array<Device> = [];
+  private readonly container = getContainer();
+  private readonly getDevicesService: GetDevicesService =
+    this.container.get('GetDevicesService');
+  private readonly createDevicesService: CreateDevicesService =
+    this.container.get('CreateDevicesService');
+
   @Get('')
   getDevices() {
-    const response: Result<Device> = {
-      data: this.devices,
-      total: this.devices.length,
-    };
-
-    return response;
+    return this.getDevicesService.run();
   }
 
   @Post('')
   @HttpCode(201)
-  createDevice(@Body() device: Device) {
-    this.devices.push(device);
-    return { result: 'success' };
+  createDevice(@Body() deviceDto: DeviceRequest): DeviceResponse {
+    return this.createDevicesService.run(deviceDto);
   }
 }
