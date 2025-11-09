@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  QueryParam,
 } from 'routing-controllers';
 import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
 import { GetDevicesService } from '../application/device/GetDevicesService';
@@ -30,8 +31,12 @@ export class DeviceController {
 
   @Get('')
   @HttpCode(StatusCodes.OK)
-  getDevices() {
-    return this.getDevicesService.run();
+  getDevices(
+    @QueryParam('brand') brand?: string,
+    @QueryParam('state') state?: string,
+    @QueryParam('name') name?: string
+  ) {
+    return this.getDevicesService.run(brand, state, name);
   }
 
   @Post('')

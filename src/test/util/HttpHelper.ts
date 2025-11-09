@@ -2,8 +2,8 @@ import http from 'http';
 import request from 'supertest';
 import { DeviceRequest } from '../../application/dto/DeviceDtos';
 
-export function getDevices(httpServer: http.Server) {
-  return request(httpServer).get('/device');
+export function getDevices(httpServer: http.Server, query: string = '') {
+  return request(httpServer).get(`/device${query}`);
 }
 
 export function createDevices(

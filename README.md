@@ -20,12 +20,10 @@ Plan
 22 - Add try catches in the service with logging and also logging on request received
 23 - Could improve the responses for errors
 24 - Thinking about wether or not we should have integration tests for the database integration
+25 - Missing unit tests on domain validation or at least integration
+26 - Make sure every package.json command works
 
 • Fetch a single device.
-• Fetch devices by brand.
-• Fetch devices by state.
-• Delete a single device.
-
 
 Design decisions log:
 

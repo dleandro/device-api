@@ -8,9 +8,16 @@ export class GetDevicesService {
   private readonly repository: Repository<Device, DeviceId> =
     getContainer().get('DeviceRepository');
 
-  run(): Response<DeviceResponse> {
+  run(brand?: string, state?: string, name?: string): Response<DeviceResponse> {
     const devicesRetrieved: Array<DevicePrimitives> = this.repository
       .getAll()
+      .filter((d) => {
+        const brandMatch = !brand || d.brand.value === brand;
+        const stateMatch = !state || d.state.value === state;
+        const nameMatch = !name || d.name.value === name;
+
+        return brandMatch && stateMatch && nameMatch;
+      })
       .map((d) => d.toPrimitives());
 
     return {

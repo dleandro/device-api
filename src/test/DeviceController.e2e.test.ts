@@ -17,12 +17,27 @@ describe('DeviceControllerE2ETests', () => {
     {
       name: 'Iphone',
       brand: 'Apple',
-      state: 'inactive',
+      state: 'available',
     },
     {
       name: 'Pixel',
       brand: 'Google',
       state: 'in-use',
+    },
+    {
+      name: 'Pixel',
+      brand: 'Google',
+      state: 'available',
+    },
+    {
+      name: 'Xyz',
+      brand: 'Nokia',
+      state: 'inactive',
+    },
+    {
+      name: 'pda',
+      brand: 'htc',
+      state: 'inactive',
     },
   ];
 
@@ -57,13 +72,61 @@ describe('DeviceControllerE2ETests', () => {
         });
       });
 
-      test('Should respond with a 200 status code and an array of devices', async () => {
+      test('Should respond with a 200 status code and an array with all the saved devices', async () => {
         const response = await getDevices(httpServer);
 
         expect(response.status).toEqual(StatusCodes.OK);
         expect(response.body).toEqual({
           total: createdDevices.length,
           data: createdDevices,
+        });
+      });
+
+      describe('and we filter by brand', () => {
+        test('Should only return the devices from this specific brand', async () => {
+          const response = await getDevices(
+            httpServer,
+            `?brand=${createdDevices[2].brand}`
+          );
+
+          expect(response.body.data[0].brand).toEqual(createdDevices[2].brand);
+          expect(response.body.data[1].brand).toEqual(createdDevices[2].brand);
+          expect(response.body.total).toEqual(2);
+        });
+      });
+      describe('and we filter by state', () => {
+        test('Should only return the devices from this specific state', async () => {
+          const response = await getDevices(
+            httpServer,
+            `?state=${createdDevices[2].state}`
+          );
+
+          expect(response.body.data[0].state).toEqual(createdDevices[2].state);
+          expect(response.body.data[1].state).toEqual(createdDevices[2].state);
+          expect(response.body.total).toEqual(2);
+        });
+      });
+      describe('and we filter by name', () => {
+        test('Should only return the devices with this specific name', async () => {
+          const response = await getDevices(
+            httpServer,
+            `?name=${createdDevices[0].name}`
+          );
+
+          expect(response.body.data[0].name).toEqual(createdDevices[0].name);
+          expect(response.body.total).toEqual(1);
+        });
+      });
+      describe('and we filter by name and brand', () => {
+        test('Should only return the devices with this specific name', async () => {
+          const response = await getDevices(
+            httpServer,
+            `?name=${createdDevices[0].name}&brand=${createdDevices[0].brand}`
+          );
+
+          expect(response.body.data[0].name).toEqual(createdDevices[0].name);
+          expect(response.body.data[0].brand).toEqual(createdDevices[0].brand);
+          expect(response.body.total).toEqual(1);
         });
       });
     });
