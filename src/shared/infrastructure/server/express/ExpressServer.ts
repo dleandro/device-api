@@ -1,4 +1,4 @@
-import express, { RequestHandler } from 'express';
+import express from 'express';
 import { Server } from '../Server';
 import http from 'http';
 import { useExpressServer } from 'routing-controllers';

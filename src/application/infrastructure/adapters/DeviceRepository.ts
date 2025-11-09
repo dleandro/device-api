@@ -22,4 +22,15 @@ export class DeviceRepository implements Repository<Device, DeviceId> {
 
     return device;
   }
+
+  update(device: Device): Device | undefined {
+    const deviceToUpdate = this.devices.find((d) => d.id === device.id);
+
+    if (deviceToUpdate) {
+      const indexToUpdate = this.devices.indexOf(deviceToUpdate);
+      this.devices[indexToUpdate] = device;
+
+      return device;
+    }
+  }
 }

@@ -2,6 +2,7 @@ import { ServiceOptions } from 'typedi';
 import { GetDevicesService } from '../../../../../application/device/GetDevicesService';
 import { CreateDevicesService } from '../../../../../application/device/CreateDevicesService';
 import { DeviceRepository } from '../../../../../application/infrastructure/adapters/DeviceRepository';
+import { UpdateDevicesService } from '../../../../../application/device/UpdateDevicesService';
 
 const dependencies: Array<ServiceOptions> = [
   {
@@ -11,6 +12,10 @@ const dependencies: Array<ServiceOptions> = [
   {
     id: 'CreateDevicesService',
     type: CreateDevicesService,
+  },
+  {
+    id: 'UpdateDevicesService',
+    type: UpdateDevicesService,
   },
   {
     id: 'DeviceRepository',

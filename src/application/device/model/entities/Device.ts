@@ -18,9 +18,9 @@ export class Device {
   public readonly id: DeviceId;
 
   constructor(
-    public readonly name: DeviceName,
-    public readonly brand: DeviceBrand,
-    public readonly state: DeviceState
+    public name: DeviceName,
+    public brand: DeviceBrand,
+    public state: DeviceState
   ) {
     this.id = new DeviceId();
     this.createdAt = new DeviceCreatedAt();
@@ -34,6 +34,21 @@ export class Device {
       state: this.state.toString(),
       createdAt: this.createdAt.toString(),
     };
+  }
+
+  updateFields(devicePrimitives: Partial<DevicePrimitives>) {
+    if (this.state.value === 'in-use') {
+      throw new ValidationDomainError('The device is in use. Updates disabled');
+    }
+    if (devicePrimitives.brand) {
+      this.brand = new DeviceBrand(devicePrimitives.brand);
+    }
+    if (devicePrimitives.state) {
+      this.state = new DeviceState(devicePrimitives.state);
+    }
+    if (devicePrimitives.name) {
+      this.name = new DeviceName(devicePrimitives.name);
+    }
   }
 
   static fromPrimitives(devicePrimitives: Partial<DevicePrimitives>) {

@@ -1,7 +1,7 @@
 import { EnumValueObject } from '../../../../../shared/domain/model/EnumValueObject';
 import { ValidationDomainError } from '../../../../../shared/domain/model/errors/ValidationDomainError';
 
-const validStates = ['available', 'in-use', 'incactive'];
+const validStates = ['available', 'in-use', 'inactive'];
 
 export class DeviceState extends EnumValueObject {
   checkValueIsValid(value: string | number): void {

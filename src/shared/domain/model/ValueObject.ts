@@ -19,7 +19,6 @@ export abstract class ValueObject<T extends string | number | boolean | Date> {
 
   private checkValueType(value: T): void {
     if (!this.isValueTypeCorrect(value)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       throw new DomainValueTypeError(
         'Provided value does not match the expected type',
         { context: { value: value as unknown } }
