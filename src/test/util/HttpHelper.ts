@@ -6,18 +6,30 @@ export function getDevices(httpServer: http.Server, query: string = '') {
   return request(httpServer).get(`/device${query}`);
 }
 
-export function createDevices(
+export function getDeviceById(deviceId: string, httpServer: http.Server) {
+  return request(httpServer).get(`/device/${deviceId}`);
+}
+
+export async function createDevices(
   devices: Array<DeviceRequest>,
   httpServer: http.Server
 ) {
-  return Promise.allSettled(
-    devices.map((d) =>
-      request(httpServer)
+  const results = [];
+
+  for (const device of devices) {
+    try {
+      const response = await request(httpServer)
         .post('/device')
-        .set('Content-Type', 'application/json')
-        .send(d)
-    )
-  );
+        .set('Content-Type', 'application/json; charset=utf-8')
+        .send(device);
+
+      results.push(response);
+    } catch (error) {
+      console.error('Failed to create post', error);
+    }
+  }
+
+  return results;
 }
 
 export function updateDevice(

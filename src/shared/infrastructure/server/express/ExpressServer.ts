@@ -4,6 +4,7 @@ import http from 'http';
 import { useExpressServer } from 'routing-controllers';
 import { getContainer } from '../../dependency_injection/setup-dependency-injection';
 import getModuleLogger from '../../../../application/port/log/get-module-logger';
+import { ServerError } from '../ServerError';
 
 export class ExpressServer implements Server {
   private readonly app = express();
@@ -16,12 +17,13 @@ export class ExpressServer implements Server {
       useExpressServer(this.app, {
         defaultErrorHandler: false,
         controllers: getContainer().get('Controllers'),
+        validation: true,
       });
 
       return http.createServer(this.app);
     } catch (error) {
       this.log.error(error);
-      throw new Error();
+      throw new ServerError("Express server wasn't able to start");
     }
   }
 

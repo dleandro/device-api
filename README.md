@@ -23,8 +23,6 @@ Plan
 25 - Missing unit tests on domain validation or at least integration
 26 - Make sure every package.json command works
 
-• Fetch a single device.
-
 Design decisions log:
 
 1 - No backend framework is going to be used as it is excessive for such a small API

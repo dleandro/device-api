@@ -4,15 +4,19 @@ import { DeviceId } from '../../device/model/entities/value_objects/DeviceId';
 import { DeviceNotFoundError } from '../errors/DeviceNotFoundError';
 
 export class DeviceRepository implements Repository<Device, DeviceId> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  findById(id: DeviceId): Device | null {
-    throw new Error('Method not implemented.');
-  }
-
   private devices: Array<Device> = [];
 
   getAll() {
     return this.devices;
+  }
+
+  findById(id: DeviceId): Device {
+    const device = this.devices.filter((d) => d.id.equals(id));
+    if (device.length) {
+      return device[0];
+    } else {
+      throw new DeviceNotFoundError(`Device with id ${id} doesn't exist`);
+    }
   }
 
   save(device: Device) {

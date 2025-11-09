@@ -6,8 +6,8 @@ import { StatusCodes } from 'http-status-codes';
 import {
   createDevices,
   deleteDevice,
+  getDeviceById,
   getDevices,
-  isPromiseSuccessful,
   updateDevice,
 } from './util/HttpHelper';
 
@@ -46,6 +46,10 @@ describe('DeviceControllerE2ETests', () => {
     httpServer = server.setup();
   });
 
+  afterAll(() => {
+    httpServer.close();
+  });
+
   describe('GET /device', () => {
     describe('When there are no devices in the DB', () => {
       test('Should respond with a 200 status code with an empty array', async () => {
@@ -65,11 +69,9 @@ describe('DeviceControllerE2ETests', () => {
           httpServer
         );
 
-        createdDevicesResponse.forEach((response) => {
-          if (isPromiseSuccessful(response)) {
-            createdDevices.push(response.value.body);
-          }
-        });
+        createdDevicesResponse.forEach((dResponse) =>
+          createdDevices.push(dResponse.body)
+        );
       });
 
       test('Should respond with a 200 status code and an array with all the saved devices', async () => {
@@ -131,6 +133,34 @@ describe('DeviceControllerE2ETests', () => {
       });
     });
   });
+  describe('GET /device/:deviceId', () => {
+    describe('When the device id is non-existant', () => {
+      test('Should respond with a 404 Status code', async () => {
+        const response = await getDeviceById('non-existant-id', httpServer);
+        expect(response.status).toEqual(StatusCodes.NOT_FOUND);
+      });
+    });
+    describe('When the device id is known', () => {
+      let createdDevice: DeviceResponse;
+
+      beforeAll(async () => {
+        const createdDeviceResponse = await createDevices(
+          [devicesToBeCreated[0]],
+          httpServer
+        );
+
+        createdDevice = createdDeviceResponse[0].body;
+      });
+      test('Should respond with Device', async () => {
+        const response = await getDeviceById(createdDevice.id, httpServer);
+        expect(response.status).toEqual(StatusCodes.OK);
+        expect(response.body.name).toEqual(createdDevice.name);
+        expect(response.body.brand).toEqual(createdDevice.brand);
+        expect(response.body.state).toEqual(createdDevice.state);
+        expect(response.body.createdAt).toEqual(createdDevice.createdAt);
+      });
+    });
+  });
   describe('POST /device', () => {
     describe('When the device in the body is valid', () => {
       test('Should create a device successfully and send a 201 Status code', async () => {
@@ -139,17 +169,9 @@ describe('DeviceControllerE2ETests', () => {
           httpServer
         );
 
-        if (isPromiseSuccessful(response[0])) {
-          expect(response[0].value.body.name).toEqual(
-            devicesToBeCreated[0].name
-          );
-          expect(response[0].value.body.brand).toEqual(
-            devicesToBeCreated[0].brand
-          );
-          expect(response[0].value.status).toEqual(StatusCodes.CREATED);
-        } else {
-          throw new Error('Unable to assert the Post response');
-        }
+        expect(response[0].body.name).toEqual(devicesToBeCreated[0].name);
+        expect(response[0].body.brand).toEqual(devicesToBeCreated[0].brand);
+        expect(response[0].status).toEqual(StatusCodes.CREATED);
       });
     });
     describe('When the device in the body is invalid', () => {
@@ -159,11 +181,7 @@ describe('DeviceControllerE2ETests', () => {
           httpServer
         );
 
-        if (isPromiseSuccessful(response[0])) {
-          expect(response[0].value.status).toEqual(StatusCodes.BAD_REQUEST);
-        } else {
-          throw new Error('Unable to assert the Post response');
-        }
+        expect(response[0].status).toEqual(StatusCodes.BAD_REQUEST);
       });
     });
   });
@@ -176,11 +194,7 @@ describe('DeviceControllerE2ETests', () => {
         httpServer
       );
 
-      createdDeviceResponse.forEach((response) => {
-        if (isPromiseSuccessful(response)) {
-          createdDevice = response.value.body;
-        }
-      });
+      createdDevice = createdDeviceResponse[0].body;
     });
     describe('When the fields in the body are valid and update is partial', () => {
       test('Should update the device correctly', async () => {
@@ -212,11 +226,7 @@ describe('DeviceControllerE2ETests', () => {
           httpServer
         );
 
-        createdDeviceResponse.forEach((response) => {
-          if (isPromiseSuccessful(response)) {
-            createdDevice = response.value.body;
-          }
-        });
+        createdDevice = createdDeviceResponse[0].body;
       });
       test('Should update the device successfully but the createdAt field should not change', async () => {
         const updatedDevice = {
@@ -245,9 +255,7 @@ describe('DeviceControllerE2ETests', () => {
         );
 
         createdDeviceResponse.forEach((response) => {
-          if (isPromiseSuccessful(response)) {
-            createdDevice = response.value.body;
-          }
+          createdDevice = response.body;
         });
       });
       test('Should not run the update and the correct error should be sent in the response', async () => {
@@ -288,9 +296,7 @@ describe('DeviceControllerE2ETests', () => {
       );
 
       createdDeviceResponse.forEach((response) => {
-        if (isPromiseSuccessful(response)) {
-          createdDevice = response.value.body;
-        }
+        createdDevice = response.body;
       });
     });
     describe('When the device id exists', () => {

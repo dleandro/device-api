@@ -4,11 +4,16 @@ import { CreateDevicesService } from '../../../../../application/device/CreateDe
 import { DeviceRepository } from '../../../../../application/infrastructure/adapters/DeviceRepository';
 import { UpdateDevicesService } from '../../../../../application/device/UpdateDevicesService';
 import { DeleteDevicesService } from '../../../../../application/device/DeleteDevicesService';
+import { GetDeviceByIdService } from '../../../../../application/device/GetDeviceByIdService';
 
 const dependencies: Array<ServiceOptions> = [
   {
     id: 'GetDevicesService',
     type: GetDevicesService,
+  },
+  {
+    id: 'GetDeviceByIdService',
+    type: GetDeviceByIdService,
   },
   {
     id: 'CreateDevicesService',
