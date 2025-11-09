@@ -22,6 +22,7 @@ Plan
 24 - Thinking about wether or not we should have integration tests for the database integration
 25 - Missing unit tests on domain validation or at least integration
 26 - Make sure every package.json command works
+27 - Domain errors should be sent from the domain only that could be changed
 
 Design decisions log:
 

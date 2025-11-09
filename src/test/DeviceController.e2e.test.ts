@@ -291,7 +291,7 @@ describe('DeviceControllerE2ETests', () => {
 
     beforeAll(async () => {
       const createdDeviceResponse = await createDevices(
-        [devicesToBeCreated[1]],
+        [devicesToBeCreated[0]],
         httpServer
       );
 
@@ -299,17 +299,33 @@ describe('DeviceControllerE2ETests', () => {
         createdDevice = response.body;
       });
     });
-    describe('When the device id exists', () => {
+    describe('When the device id exists and is not in use', () => {
       test('Should delete the device', async () => {
         const response = await deleteDevice(createdDevice.id, httpServer);
         expect(response.status).toEqual(StatusCodes.NO_CONTENT);
 
-        const devices = await getDevices(httpServer);
-        expect(
-          devices.body.data.find(
-            (d: DeviceResponse) => d.id === createdDevice.id
-          )
-        ).toBeFalsy();
+        const emptyResponse = await getDeviceById(createdDevice.id, httpServer);
+        expect(emptyResponse.status).toEqual(StatusCodes.NOT_FOUND);
+      });
+      describe('and the device is in use', () => {
+        let createdInUseDevice: DeviceResponse;
+        beforeAll(async () => {
+          const createdDeviceResponse = await createDevices(
+            [devicesToBeCreated[1]],
+            httpServer
+          );
+
+          createdDeviceResponse.forEach((response) => {
+            createdInUseDevice = response.body;
+          });
+        });
+        test('Should not delete the device and should respond with a 400', async () => {
+          const response = await deleteDevice(
+            createdInUseDevice.id,
+            httpServer
+          );
+          expect(response.status).toEqual(StatusCodes.BAD_REQUEST);
+        });
       });
     });
     describe("When the device id doesn't exist", () => {

@@ -51,6 +51,10 @@ export class Device {
     }
   }
 
+  canBeDeleted() {
+    return this.state.value !== 'in-use';
+  }
+
   static fromPrimitives(devicePrimitives: Partial<DevicePrimitives>) {
     if (
       devicePrimitives.name &&

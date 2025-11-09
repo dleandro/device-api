@@ -1,3 +1,4 @@
+import { ValidationDomainError } from '../../shared/domain/model/errors/ValidationDomainError';
 import { getContainer } from '../../shared/infrastructure/dependency_injection/setup-dependency-injection';
 import { Repository } from '../../shared/model/Repository';
 import { Device } from './model/entities/Device';
@@ -8,6 +9,15 @@ export class DeleteDevicesService {
     getContainer().get('DeviceRepository');
 
   run(deviceId: string) {
-    return this.repository.delete(new DeviceId(deviceId));
+    const id = new DeviceId(deviceId);
+    const deviceToDelete = this.repository.findById(id);
+
+    if (deviceToDelete.canBeDeleted()) {
+      return this.repository.delete(id);
+    } else {
+      throw new ValidationDomainError(
+        'This device cannot be deleted as it is in use'
+      );
+    }
   }
 }
