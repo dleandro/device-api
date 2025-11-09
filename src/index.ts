@@ -8,7 +8,7 @@ const logger = getModuleLogger('server-entrypoint');
 function main() {
   const server: Server = getContainer().get('Server');
   server.setup();
-  server.start(8000);
+  server.start(process.env.PORT ? Number.parseInt(process.env.PORT) : 8000);
   logger.info('Server started');
 }
 

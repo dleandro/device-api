@@ -14,18 +14,28 @@ export type DevicePrimitives = {
 };
 
 export class Device {
-  public readonly createdAt: DeviceCreatedAt;
-  public readonly id: DeviceId;
-
+  public readonly id: DeviceId
+  public readonly createdAt: DeviceCreatedAt
+  
   constructor(
     public name: DeviceName,
     public brand: DeviceBrand,
-    public state: DeviceState
+    public state: DeviceState,
+    id?: DeviceId,
+    createdAt?: DeviceCreatedAt
   ) {
-    this.id = new DeviceId();
-    this.createdAt = new DeviceCreatedAt();
+    if (id) {
+      this.id = id
+    } else {
+      this.id = new DeviceId();
+    }
+    if (createdAt) {
+      this.createdAt = createdAt
+    } else {
+      this.createdAt = new DeviceCreatedAt();
+    }
   }
-
+  
   toPrimitives(): DevicePrimitives {
     return {
       id: this.id.toString(),
@@ -35,10 +45,10 @@ export class Device {
       createdAt: this.createdAt.toString(),
     };
   }
-
+  
   updateFields(devicePrimitives: Partial<DevicePrimitives>) {
-    if (this.state.value === 'in-use') {
-      throw new ValidationDomainError('The device is in use. Updates disabled');
+    if (this.state.value === 'in-use' && (devicePrimitives.brand || devicePrimitives.name)) {
+      throw new ValidationDomainError('The device is in use. Updates disabled for brand and name properties');
     }
     if (devicePrimitives.brand) {
       this.brand = new DeviceBrand(devicePrimitives.brand);
@@ -50,11 +60,11 @@ export class Device {
       this.name = new DeviceName(devicePrimitives.name);
     }
   }
-
+  
   canBeDeleted() {
     return this.state.value !== 'in-use';
   }
-
+  
   static fromPrimitives(devicePrimitives: Partial<DevicePrimitives>) {
     if (
       devicePrimitives.name &&
@@ -64,7 +74,9 @@ export class Device {
       return new Device(
         new DeviceName(devicePrimitives.name),
         new DeviceBrand(devicePrimitives.brand),
-        new DeviceState(devicePrimitives.state)
+        new DeviceState(devicePrimitives.state),
+        devicePrimitives.id ? new DeviceId(devicePrimitives.id) : undefined,
+        devicePrimitives.createdAt ? new DeviceCreatedAt(devicePrimitives.createdAt) : undefined
       );
     } else {
       throw new ValidationDomainError(

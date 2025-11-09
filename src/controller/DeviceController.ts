@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes';
 import {
   Body,
   Delete,
@@ -9,14 +10,15 @@ import {
   Put,
   QueryParam,
 } from 'routing-controllers';
-import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
-import { GetDevicesService } from '../application/device/GetDevicesService';
-import { getContainer } from '../shared/infrastructure/dependency_injection/setup-dependency-injection';
 import { CreateDevicesService } from '../application/device/CreateDevicesService';
-import { StatusCodes } from 'http-status-codes';
-import { UpdateDevicesService } from '../application/device/UpdateDevicesService';
 import { DeleteDevicesService } from '../application/device/DeleteDevicesService';
 import { GetDeviceByIdService } from '../application/device/GetDeviceByIdService';
+import { GetDevicesService } from '../application/device/GetDevicesService';
+import { UpdateDevicesService } from '../application/device/UpdateDevicesService';
+import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
+import { getContainer } from '../shared/infrastructure/dependency_injection/setup-dependency-injection';
+import TsLogLoggerFactory from '../shared/infrastructure/log/TsLogLoggerFactory';
+import { Logger } from '../shared/model/Logger';
 
 @JsonController('/device')
 export class DeviceController {
@@ -31,43 +33,50 @@ export class DeviceController {
     this.container.get('UpdateDevicesService');
   private readonly deleteDevicesService: DeleteDevicesService =
     this.container.get('DeleteDevicesService');
+  private readonly logger: Logger;
+
+  constructor() {
+    const loggerFactory = new TsLogLoggerFactory();
+    this.logger = loggerFactory.getModuleLogger('DeviceController');
+  }
 
   @Get('')
   @HttpCode(StatusCodes.OK)
-  getDevices(
+  async getDevices(
     @QueryParam('brand') brand?: string,
     @QueryParam('state') state?: string,
     @QueryParam('name') name?: string
   ) {
-    return this.getDevicesService.run(brand, state, name);
+    return await this.getDevicesService.run(brand, state, name);
   }
 
   @Get('/:deviceId')
   @HttpCode(StatusCodes.OK)
-  getDeviceById(@Param('deviceId') deviceId: string) {
-    return this.getDeviceByIdService.run(deviceId);
+  async getDeviceById(@Param('deviceId') deviceId: string) {
+    return await this.getDeviceByIdService.run(deviceId);
   }
 
   @Post('')
   @HttpCode(StatusCodes.CREATED)
-  createDevice(@Body() deviceDto: DeviceRequest): DeviceResponse {
-    return this.createDevicesService.run(deviceDto);
+  async createDevice(
+    @Body() deviceDto: DeviceRequest
+  ): Promise<DeviceResponse> {
+    return await this.createDevicesService.run(deviceDto);
   }
 
   @Put('/:deviceId')
   @HttpCode(StatusCodes.OK)
-  updateDevice(
+  async updateDevice(
     @Body() deviceDto: Partial<DeviceRequest>,
     @Param('deviceId') deviceId: string
-  ): DeviceResponse | undefined {
-    return this.updateDevicesService.run(deviceDto, deviceId);
+  ): Promise<DeviceResponse> {
+    return await this.updateDevicesService.run(deviceDto, deviceId);
   }
 
   @Delete('/:deviceId')
   @HttpCode(StatusCodes.NO_CONTENT)
-  deleteDevice(@Param('deviceId') deviceId: string) {
-    this.deleteDevicesService.run(deviceId);
-
+  async deleteDevice(@Param('deviceId') deviceId: string) {
+    await this.deleteDevicesService.run(deviceId);
     return {};
   }
 }

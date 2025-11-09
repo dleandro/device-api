@@ -1,5 +1,5 @@
-import http from 'http';
-import request from 'supertest';
+import http from 'node:http';
+import request, { Response } from 'supertest';
 import { DeviceRequest } from '../../application/dto/DeviceDtos';
 
 export function getDevices(httpServer: http.Server, query: string = '') {
@@ -14,7 +14,7 @@ export async function createDevices(
   devices: Array<DeviceRequest>,
   httpServer: http.Server
 ) {
-  const results = [];
+  const results: Array<Response> = [];
 
   for (const device of devices) {
     try {
@@ -33,7 +33,7 @@ export async function createDevices(
 }
 
 export function updateDevice(
-  deviceToBeUpdated: DeviceRequest,
+  deviceToBeUpdated: Partial<DeviceRequest>,
   deviceId: string,
   httpServer: http.Server
 ) {

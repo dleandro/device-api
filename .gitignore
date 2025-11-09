@@ -71,3 +71,16 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Security and credentials
+.env.production
+.env.staging
+secrets/
+*.key
+*.pem
+*.p12
+*.crt
+*.csr
+
+# Docker secrets
+docker-secrets/

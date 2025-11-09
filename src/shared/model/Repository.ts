@@ -1,7 +1,7 @@
 export interface Repository<Entity, EntityId> {
-  save(data: Entity): Entity;
-  getAll(): Array<Entity>;
-  findById(id: EntityId): Entity;
-  update(data: Entity): Entity;
-  delete(id: EntityId): void;
+  save(data: Entity): Promise<Entity>;
+  getAll(): Promise<Array<Entity>>;
+  findById(id: EntityId): Promise<Entity>;
+  update(data: Entity): Promise<Entity>;
+  delete(id: EntityId): Promise<void>;
 }

@@ -1,0 +1,386 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Devices API",
+    "description": "A REST API for managing devices built with TDD and MongoDB integration",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Diogo Leandro"
+    },
+    "license": {
+      "name": "ISC",
+      "url": "https://opensource.org/licenses/ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/device": {
+      "get": {
+        "summary": "Get all devices",
+        "description": "Retrieve a list of devices with optional filtering by brand, state, and name",
+        "tags": ["Devices"],
+        "parameters": [
+          {
+            "name": "brand",
+            "in": "query",
+            "description": "Filter devices by brand",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Apple"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Filter devices by state",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "active"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Filter devices by name",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "iPhone"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved devices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new device",
+        "description": "Create a new device with the provided information",
+        "tags": ["Devices"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Device created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/device/{deviceId}": {
+      "get": {
+        "summary": "Get device by ID",
+        "description": "Retrieve a specific device by its ID",
+        "tags": ["Devices"],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the device",
+            "schema": {
+              "type": "string",
+              "example": "device-123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Device found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update device",
+        "description": "Update an existing device with new information",
+        "tags": ["Devices"],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the device to update",
+            "schema": {
+              "type": "string",
+              "example": "device-123"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartialDeviceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Device updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete device",
+        "description": "Delete a specific device by its ID",
+        "tags": ["Devices"],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the device to delete",
+            "schema": {
+              "type": "string",
+              "example": "device-123"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Device deleted successfully"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DeviceRequest": {
+        "type": "object",
+        "required": ["name", "brand", "state"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the device",
+            "example": "iPhone 15 Pro",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand/manufacturer of the device",
+            "example": "Apple",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "state": {
+            "type": "string",
+            "description": "Current state of the device",
+            "example": "active",
+            "enum": ["active", "inactive", "maintenance", "retired"]
+          }
+        }
+      },
+      "PartialDeviceRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the device",
+            "example": "iPhone 15 Pro Max",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand/manufacturer of the device",
+            "example": "Apple",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "state": {
+            "type": "string",
+            "description": "Current state of the device",
+            "example": "maintenance",
+            "enum": ["active", "inactive", "maintenance", "retired"]
+          }
+        }
+      },
+      "DeviceResponse": {
+        "type": "object",
+        "required": ["id", "name", "brand", "state", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the device",
+            "example": "device-123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the device",
+            "example": "iPhone 15 Pro"
+          },
+          "brand": {
+            "type": "string",
+            "description": "Brand/manufacturer of the device",
+            "example": "Apple"
+          },
+          "state": {
+            "type": "string",
+            "description": "Current state of the device",
+            "example": "active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of when the device was created",
+            "example": "2025-11-09T10:30:00.000Z"
+          }
+        }
+      },
+      "DeviceListResponse": {
+        "type": "object",
+        "required": ["total", "data"],
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Total number of devices returned",
+            "example": 2
+          },
+          "data": {
+            "type": "array",
+            "description": "List of devices",
+            "items": {
+              "$ref": "#/components/schemas/DeviceResponse"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error type",
+            "example": "ValidationError"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Device name is required"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request - Invalid input data",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Devices",
+      "description": "Standard device management operations with in-memory storage"
+    }
+  ]
+}

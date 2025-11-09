@@ -1,8 +1,9 @@
+import '../shared/infrastructure/config/setup-config';
+import { StatusCodes } from 'http-status-codes';
+import http from 'node:http';
+import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
 import { getContainer } from '../shared/infrastructure/dependency_injection/setup-dependency-injection';
 import { Server } from '../shared/infrastructure/server/Server';
-import http from 'http';
-import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
-import { StatusCodes } from 'http-status-codes';
 import {
   createDevices,
   deleteDevice,
@@ -10,6 +11,7 @@ import {
   getDevices,
   updateDevice,
 } from './util/HttpHelper';
+import { TestDatabaseHelper } from './util/TestDatabaseHelper';
 
 describe('DeviceControllerE2ETests', () => {
   let httpServer: http.Server;
@@ -41,13 +43,21 @@ describe('DeviceControllerE2ETests', () => {
     },
   ];
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    // Setup database connection for tests
+    await TestDatabaseHelper.setupDatabase();
+    await TestDatabaseHelper.clearDatabase();
+
     const server: Server = getContainer().get('Server');
     httpServer = server.setup();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    // Close HTTP server
     httpServer.close();
+
+    // Close database connection
+    await TestDatabaseHelper.teardownDatabase();
   });
 
   describe('GET /device', () => {
@@ -64,6 +74,8 @@ describe('DeviceControllerE2ETests', () => {
       const createdDevices: Array<DeviceResponse> = [];
 
       beforeAll(async () => {
+        // Clear database before creating test devices
+        await TestDatabaseHelper.clearDatabase();
         const createdDevicesResponse = await createDevices(
           devicesToBeCreated,
           httpServer
@@ -254,24 +266,40 @@ describe('DeviceControllerE2ETests', () => {
           httpServer
         );
 
-        createdDeviceResponse.forEach((response) => {
-          createdDevice = response.body;
+        createdDevice = createdDeviceResponse[0].body;
+      });
+
+      describe('And the user tries to update name or brand', () => {
+        test('Should not run the update and the correct error should be sent in the response', async () => {
+          const updatedDevice = {
+            name: 'Updated_name',
+            brand: 'Updated_brand',
+            state: 'available',
+            createdAt: '2025-11-09T10:58:41.776Z',
+          };
+
+          const response = await updateDevice(
+            updatedDevice,
+            createdDevice.id,
+            httpServer
+          );
+          expect(response.status).toEqual(400);
         });
       });
-      test('Should not run the update and the correct error should be sent in the response', async () => {
-        const updatedDevice = {
-          name: 'Updated_name',
-          brand: 'Updated_brand',
-          state: 'available',
-          createdAt: '2025-11-09T10:58:41.776Z',
-        };
+      describe('And the user tries to update the state field only', () => {
+        test('Should run the update and the up to date device should be sent in the response', async () => {
+          const updatedDevice = {
+            state: 'available',
+          };
 
-        const response = await updateDevice(
-          updatedDevice,
-          createdDevice.id,
-          httpServer
-        );
-        expect(response.status).toEqual(400);
+          const response = await updateDevice(
+            updatedDevice,
+            createdDevice.id,
+            httpServer
+          );
+          expect(response.status).toEqual(200);
+          expect(response.body.state).toEqual(updatedDevice.state);
+        });
       });
     });
     describe("When the device to be updated doesn't exist", () => {

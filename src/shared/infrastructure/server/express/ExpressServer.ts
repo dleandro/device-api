@@ -1,10 +1,11 @@
 import express from 'express';
-import { Server } from '../Server';
-import http from 'http';
+import http from 'node:http';
 import { useExpressServer } from 'routing-controllers';
-import { getContainer } from '../../dependency_injection/setup-dependency-injection';
 import getModuleLogger from '../../../../application/port/log/get-module-logger';
+import { getContainer } from '../../dependency_injection/setup-dependency-injection';
+import { Server } from '../Server';
 import { ServerError } from '../ServerError';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
 export class ExpressServer implements Server {
   private readonly app = express();
@@ -18,6 +19,10 @@ export class ExpressServer implements Server {
         defaultErrorHandler: false,
         controllers: getContainer().get('Controllers'),
         validation: true,
+      });
+
+      this.app.get('/health', (_req, res) => {
+        res.status(StatusCodes.OK).send(ReasonPhrases.OK);
       });
 
       return http.createServer(this.app);
