@@ -3,6 +3,7 @@ import { Server } from '../shared/infrastructure/server/Server';
 import request from 'supertest';
 import http from 'http';
 import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
+import { StatusCodes } from 'http-status-codes';
 
 describe('DeviceControllerE2ETests', () => {
   let httpServer: http.Server;
@@ -27,7 +28,9 @@ describe('DeviceControllerE2ETests', () => {
   describe('GET /device', () => {
     describe('When there are no devices in the DB', () => {
       test('Should respond with a 200 status code with an empty array', async () => {
-        const response = await request(httpServer).get('/device').expect(200);
+        const response = await request(httpServer)
+          .get('/device')
+          .expect(StatusCodes.OK);
         expect(response.body).toEqual({ total: 0, data: [] });
       });
     });
@@ -49,7 +52,9 @@ describe('DeviceControllerE2ETests', () => {
       });
 
       test('Should respond with a 200 status code and an array of devices', async () => {
-        const response = await request(httpServer).get('/device').expect(200);
+        const response = await request(httpServer)
+          .get('/device')
+          .expect(StatusCodes.OK);
         expect(response.body).toEqual({
           total: createdDevices.length,
           data: createdDevices,
@@ -72,7 +77,7 @@ describe('DeviceControllerE2ETests', () => {
           expect(response[0].value.body.brand).toEqual(
             devicesToBeCreated[0].brand
           );
-          expect(response[0].value.status).toEqual(201);
+          expect(response[0].value.status).toEqual(StatusCodes.CREATED);
         } else {
           throw new Error('Unable to assert the Post response');
         }

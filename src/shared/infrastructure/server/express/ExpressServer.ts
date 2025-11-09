@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import { Server } from '../Server';
 import http from 'http';
 import { useExpressServer } from 'routing-controllers';
@@ -14,9 +14,8 @@ export class ExpressServer implements Server {
 
     try {
       useExpressServer(this.app, {
+        defaultErrorHandler: false,
         controllers: getContainer().get('Controllers'),
-        defaultErrorHandler: true,
-        validation: true,
       });
 
       return http.createServer(this.app);
