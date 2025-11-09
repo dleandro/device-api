@@ -5,6 +5,7 @@ import { DeviceRequest, DeviceResponse } from '../application/dto/DeviceDtos';
 import { StatusCodes } from 'http-status-codes';
 import {
   createDevices,
+  deleteDevice,
   getDevices,
   isPromiseSuccessful,
   updateDevice,
@@ -103,7 +104,7 @@ describe('DeviceControllerE2ETests', () => {
       });
     });
   });
-  describe('PUT /device', () => {
+  describe('PUT /device/:id', () => {
     let createdDevice: DeviceResponse;
 
     beforeAll(async () => {
@@ -200,6 +201,52 @@ describe('DeviceControllerE2ETests', () => {
           httpServer
         );
         expect(response.status).toEqual(400);
+      });
+    });
+    describe("When the device to be updated doesn't exist", () => {
+      test('Should receive a 404 error', async () => {
+        const response = await updateDevice(
+          devicesToBeCreated[0],
+          'non-existant-id',
+          httpServer
+        );
+
+        expect(response.status).toEqual(StatusCodes.NOT_FOUND);
+      });
+    });
+  });
+  describe('DELETE /:id', () => {
+    let createdDevice: DeviceResponse;
+
+    beforeAll(async () => {
+      const createdDeviceResponse = await createDevices(
+        [devicesToBeCreated[1]],
+        httpServer
+      );
+
+      createdDeviceResponse.forEach((response) => {
+        if (isPromiseSuccessful(response)) {
+          createdDevice = response.value.body;
+        }
+      });
+    });
+    describe('When the device id exists', () => {
+      test('Should delete the device', async () => {
+        const response = await deleteDevice(createdDevice.id, httpServer);
+        expect(response.status).toEqual(StatusCodes.NO_CONTENT);
+
+        const devices = await getDevices(httpServer);
+        expect(
+          devices.body.data.find(
+            (d: DeviceResponse) => d.id === createdDevice.id
+          )
+        ).toBeFalsy();
+      });
+    });
+    describe("When the device id doesn't exist", () => {
+      test('Should not delete anything and should return a 404', async () => {
+        const response = await deleteDevice('non-existant-id', httpServer);
+        expect(response.status).toEqual(StatusCodes.NOT_FOUND);
       });
     });
   });

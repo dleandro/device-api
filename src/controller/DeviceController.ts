@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Get,
   HttpCode,
   JsonController,
@@ -13,6 +14,7 @@ import { getContainer } from '../shared/infrastructure/dependency_injection/setu
 import { CreateDevicesService } from '../application/device/CreateDevicesService';
 import { StatusCodes } from 'http-status-codes';
 import { UpdateDevicesService } from '../application/device/UpdateDevicesService';
+import { DeleteDevicesService } from '../application/device/DeleteDevicesService';
 
 @JsonController('/device')
 export class DeviceController {
@@ -23,6 +25,8 @@ export class DeviceController {
     this.container.get('CreateDevicesService');
   private readonly updateDevicesService: UpdateDevicesService =
     this.container.get('UpdateDevicesService');
+  private readonly deleteDevicesService: DeleteDevicesService =
+    this.container.get('DeleteDevicesService');
 
   @Get('')
   @HttpCode(StatusCodes.OK)
@@ -43,5 +47,13 @@ export class DeviceController {
     @Param('deviceId') deviceId: string
   ): DeviceResponse | undefined {
     return this.updateDevicesService.run(deviceDto, deviceId);
+  }
+
+  @Delete('/:deviceId')
+  @HttpCode(StatusCodes.NO_CONTENT)
+  deleteDevice(@Param('deviceId') deviceId: string) {
+    this.deleteDevicesService.run(deviceId);
+
+    return {};
   }
 }

@@ -11,15 +11,16 @@ Plan
 13 - Openapi documentation
 14 - Is it possible to export a postman collection
 15 - Add pagination and filtering on the get
-16 - We could have TestMothers in the future with faker or something in order to have more variety when creating the test objects
+16 - We could have ObjectMothers in the future with faker or something in order to have more variety when creating the test objects and a better experience when creating those test objects
 17 - Remove the constant id's for the container services which could be in a single file
 18 - Could have dependency injection for each environment (prod, dev, stg)
-19 - Could improve the env variable configuration system by having a centralized getConfig with a defined type
-20 - Remove indexing on the tests '[0]'
+19 - Could improve the env variable configuration system by having a centralized getConfig with a defined type and configurations per environment
+20 - Remove indexing on the tests '[0]' wouldn't be necessary if we had object mothers
 21 - Make sure to review the status codes
 22 - Add try catches in the service with logging and also logging on request received
+23 - Could improve the responses for errors
+24 - Thinking about wether or not we should have integration tests for the database integration
 
-• Fully and/or par:ally update an exis:ng device.
 • Fetch a single device.
 • Fetch devices by brand.
 • Fetch devices by state.

@@ -31,6 +31,10 @@ export function updateDevice(
     .send(deviceToBeUpdated);
 }
 
+export function deleteDevice(deviceId: string, httpServer: http.Server) {
+  return request(httpServer).delete(`/device/${deviceId}`);
+}
+
 export function isPromiseSuccessful<T>(
   prom: PromiseSettledResult<T>
 ): prom is PromiseFulfilledResult<T> {
