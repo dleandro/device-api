@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import './shared/infrastructure/config/setup-config';
 import getModuleLogger from './application/port/log/get-module-logger';
 import { getContainer } from './shared/infrastructure/dependency_injection/setup-dependency-injection';
 import { Server } from './shared/infrastructure/server/Server';

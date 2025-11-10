@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MongoDB Database
   mongodb:
@@ -47,6 +45,24 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # Test Runner Service
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: devices-api-test-runner
+    environment:
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://${MONGODB_ROOT_USERNAME}:${MONGODB_ROOT_PASSWORD}@mongodb:27017/${MONGODB_DATABASE}_test?authSource=admin
+      - MONGODB_DATABASE=${MONGODB_DATABASE}_test
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - devices-network
+    profiles:
+      - test
 
   # MongoDB Admin Interface (optional)
   mongo-express:

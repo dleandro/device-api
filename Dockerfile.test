@@ -1,0 +1,23 @@
+# Dockerfile for testing environment
+FROM node:20-alpine
+
+# Install bash, curl for health checks, and netcat for port checking
+RUN apk add --no-cache bash curl netcat-openbsd
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies for testing)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Copy wait script
+COPY scripts/wait-for-mongo.sh ./scripts/
+RUN chmod +x ./scripts/wait-for-mongo.sh
+
+# Set the default command to wait for MongoDB and then run tests
+CMD ["./scripts/wait-for-mongo.sh", "mongodb", "27017", "npm", "test"]
